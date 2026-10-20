@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Өлшеу зертханасы | 2-сынып</title>
+<style>
+:root{--ink:#20304a;--blue:#4568f5;--purple:#7b52d9;--mint:#c8f7df;--yellow:#ffda70;--pink:#ffe0ec;--paper:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:linear-gradient(135deg,#e8f7ff,#f6edff 52%,#fff5db);min-height:100vh}
+header{padding:22px 16px 8px;text-align:center}.eyebrow{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#6c61bf}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:10px 0}.subtitle{font-size:1.05rem;color:#65718b}
+.shell{max-width:980px;margin:0 auto;padding:16px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.pill{background:#fff;border:1px solid #e4e8f3;border-radius:999px;padding:10px 15px;font-weight:800;box-shadow:0 5px 16px #3e4b7210}
+.progress{height:10px;background:#e4e8f5;border-radius:99px;overflow:hidden;flex:1;min-width:120px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#6b73f8,#ae73f5);transition:width .3s}
+.card{background:#ffffffed;border:1px solid #fff;border-radius:28px;padding:clamp(18px,4vw,34px);box-shadow:0 18px 55px #43517b17}
+.stagehead{display:flex;align-items:center;gap:15px;margin-bottom:20px}.emoji{display:grid;place-items:center;width:70px;height:70px;border-radius:22px;background:#e7eaff;font-size:2.4rem;flex-shrink:0}
+h2{margin:0 0 5px;font-size:clamp(1.4rem,3vw,2rem)}.muted{color:#65718b;line-height:1.5}
+.question{background:#f6f7ff;border-radius:20px;padding:22px;margin:18px 0;font-size:1.15rem;font-weight:750}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.option{border:2px solid #e2e6f4;background:#fff;border-radius:16px;padding:16px;text-align:left;font:inherit;font-weight:750;color:var(--ink);cursor:pointer;transition:.15s;min-height:62px}
+.option:hover{border-color:#8b8cf7;transform:translateY(-1px)}.option.selected{border-color:var(--blue);background:#eef0ff}.option.correct{border-color:#21a66c;background:#e1f9ed}.option.wrong{border-color:#e66b83;background:#fff0f3}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{border:0;border-radius:14px;padding:14px 20px;font:inherit;font-weight:850;cursor:pointer}.primary{background:linear-gradient(120deg,#5268f5,#8c55dc);color:#fff;box-shadow:0 8px 20px #6c61d936}.secondary{background:#edf0fb;color:#374365}.btn:disabled{opacity:.45;cursor:not-allowed}
+.feedback{margin-top:15px;padding:14px 16px;border-radius:14px;font-weight:750;display:none}.feedback.show{display:block}.feedback.good{background:#e1f9ed;color:#176b49}.feedback.bad{background:#fff0f3;color:#a3314c}
+.dots{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.dot{width:38px;height:38px;display:grid;place-items:center;background:#f0f1fa;border-radius:13px;font-weight:850}.dot.done{background:#fff0bb}.footer{text-align:center;padding:24px;color:#79839a;font-size:.9rem}
+.result{text-align:center;padding:16px 0}.bigstar{font-size:4rem}.score{font-size:3rem;font-weight:950;color:#7356db}.medal{font-size:2.3rem}
+@media(max-width:560px){.stagehead{align-items:flex-start}.emoji{width:58px;height:58px;font-size:2rem}.topbar{align-items:stretch}.pill{text-align:center}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">2-СЫНЫП · МАТЕМАТИКА</div><h1>🔬 Өлшеу зертханасы</h1><div class="subtitle">Шамаларды әртүрлі құралдармен өлшеу</div></header>
+<main class="shell">
+ <div class="topbar"><div class="pill">⭐ Ұпай: <span id="score">0</span></div><div class="progress"><div id="progress"></div></div><div class="pill">🧪 <span id="stagecount">1 / 4 кезең</span></div></div>
+ <section class="card" id="game"></section>
+ <div class="dots" id="dots"></div>
+</main><div class="footer">Әр өлшемнің өз құралы бар! ✨</div>
+<script>
+const stages=[
+{title:"Ұзындықты өлше",emoji:"📏",desc:"Заттың ұзындығын өлшеуге лайық құралды таңда.",qs:[
+{q:"Қарындаштың ұзындығын немен өлшейміз?",opts:["Сызғышпен","Таразымен","Сағатпен"],a:0,why:"Сызғыш ұзындықты сантиметрмен өлшейді."},
+{q:"1 дм неше сантиметрге тең?",opts:["100 см","10 см","2 см"],a:1,why:"1 дм = 10 см."},
+{q:"Партаның ұзындығын өлшеуге қайсысы ыңғайлы?",opts:["Өлшеуіш таспа","Шай қасық","Сағат"],a:0,why:"Ұзындау заттарды өлшеуге өлшеуіш таспа қолайлы."}]},
+{title:"Массаны өлше",emoji:"⚖️",desc:"Қай құрал заттың ауыр-жеңілдігін анықтайды?",qs:[
+{q:"Алманың массасын немен өлшейміз?",opts:["Таразы","Сызғыш","Сағат"],a:0,why:"Массаны таразымен өлшейміз."},
+{q:"Қай өлшем бірлігі массаны білдіреді?",opts:["Сантиметр (см)","Килограмм (кг)","Сағат (сағ)"],a:1,why:"Килограмм және грамм — масса бірліктері."},
+{q:"1 килограмм неше грамм?",opts:["100 г","10 г","1000 г"],a:2,why:"1 кг = 1000 г."}]},
+{title:"Сыйымдылықты өлше",emoji:"🧪",desc:"Ыдысқа қанша сұйықтық сыятынын анықта.",qs:[
+{q:"Бөтелдедегі судың көлемін немен өлшейміз?",opts:["Өлшеуіш ыдыспен","Сызғышпен","Таразымен"],a:0,why:"Сұйықтық көлемін өлшеуіш ыдыспен өлшеуге болады."},
+{q:"Сыйымдылықты өлшейтін бірлік қайсы?",opts:["Литр (л)","Метр (м)","Килограмм (кг)"],a:0,why:"Литр — сұйықтық сыйымдылығының өлшем бірлігі."},
+{q:"Қай ыдысқа көбірек су сыяды?",opts:["200 мл стақан","1 л бөтелке","Екеуіне бірдей"],a:1,why:"1 литр = 1000 мл, сондықтан 1 л бөтелкеге көбірек су сыяды."}]},
+{title:"Уақытты анықта",emoji:"⏰",desc:"Уақытты өлшейтін құрал мен бірліктерді тап.",qs:[
+{q:"Уақытты немен өлшейміз?",opts:["Сағатпен","Таразымен","Сызғышпен"],a:0,why:"Уақытты сағатпен немесе секундомермен өлшейміз."},
+{q:"1 сағатта неше минут бар?",opts:["100 минут","60 минут","30 минут"],a:1,why:"1 сағат = 60 минут."},
+{q:"Жүгіру уақытын дәл өлшеуге қайсысы көмектеседі?",opts:["Секундомер","Өлшеуіш таспа","Таразы"],a:0,why:"Секундомер өткен уақытты өлшейді."}]}
+];
+let stage=0, qi=0, score=0, selected=null, checked=false, answered=0;
+const game=document.getElementById('game');
+function render(){
+ document.getElementById('score').textContent=score;
+ document.getElementById('stagecount').textContent=Math.min(stage+1,4)+' / 4 кезең';
+ document.getElementById('progress').style.width=(answered/12*100)+'%';
+ document.getElementById('dots').innerHTML=stages.map((s,i)=>`<div class="dot ${i<stage?'done':''}" title="${s.title}">${i<stage?'⭐':s.emoji}</div>`).join('');
+ if(stage>=4){result();return}
+ const s=stages[stage],q=s.qs[qi];
+ game.innerHTML=`<div class="stagehead"><div class="emoji">${s.emoji}</div><div><div class="eyebrow">КЕЗЕҢ ${stage+1}</div><h2>${s.title}</h2><div class="muted">${s.desc}</div></div></div>
+ <div class="muted">Тапсырма ${qi+1} / ${s.qs.length}</div><div class="question">${q.q}</div>
+ <div class="options">${q.opts.map((o,i)=>`<button class="option ${selected===i?'selected':''}" data-i="${i}" ${checked?'disabled':''}>${['A','Ә','Б'][i]}. ${o}</button>`).join('')}</div>
+ <div class="feedback ${checked?'show':''} ${checked?(selected===q.a?'good':'bad'):''}" id="feedback">${checked?(selected===q.a?'✨ Дұрыс жауап! Жарайсың! ⭐ ':'Әлі де үйренеміз! ')+q.why:''}</div>
+ <div class="actions">${!checked?'<button class="btn primary" id="check" '+(selected===null?'disabled':'')+'>Жауапты тексеру ✓</button>':`<button class="btn primary" id="next">${qi===2?(stage===3?'Нәтижені көру 🏆':'Келесі кезең →'):'Келесі тапсырма →'}</button>`}<button class="btn secondary" id="reset">Қайта бастау ↻</button></div>`;
+ game.querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{if(!checked){selected=+b.dataset.i;render()}}));
+ const check=document.getElementById('check');if(check)check.onclick=()=>{if(selected===null)return;checked=true;answered++;if(selected===q.a)score+=1;render()};
+ const next=document.getElementById('next');if(next)next.onclick=()=>{if(qi<2){qi++}else{stage++;qi=0}selected=null;checked=false;render()};
+ document.getElementById('reset').onclick=()=>{stage=0;qi=0;score=0;selected=null;checked=false;answered=0;render()};
+}
+function result(){
+ document.getElementById('stagecount').textContent='Аяқталды!';
+ document.getElementById('progress').style.width='100%';
+ document.getElementById('dots').innerHTML=stages.map(s=>`<div class="dot done">${s.emoji}</div>`).join('');
+ const msg=score>=10?'Керемет! Сен нағыз жас зерттеушісің!':score>=7?'Жарайсың! Біліміңді тағы шыңдай түс!':'Жақсы талпыныс! Қайталап көріп, біліміңді бекіт!';
+ game.innerHTML=`<div class="result"><div class="bigstar">🏆</div><div class="eyebrow">ЗЕРТХАНА МІНДЕТІ ОРЫНДАЛДЫ</div><h2>Құттықтаймыз, жас зерттеуші!</h2><div class="score">${score} / 12 ⭐</div><p class="muted">${msg}</p><div class="medal">${score>=10?'🥇':score>=7?'🥈':'🌟'}</div><p>Сен ұзындықты, массаны, сыйымдылықты және уақытты өлшейтін құралдарды қайталадың.</p><button class="btn primary" id="again">Қайта ойнау ↻</button></div>`;
+ document.getElementById('again').onclick=()=>{stage=0;qi=0;score=0;selected=null;checked=false;answered=0;render()};
+}
+render();
+</script>
+</body></html>

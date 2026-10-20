@@ -16,7 +16,7 @@ h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:10px 0}.subtitle{fon
 h2{margin:0 0 5px;font-size:clamp(1.4rem,3vw,2rem)}.muted{color:#65718b;line-height:1.5}
 .question{background:#f6f7ff;border-radius:20px;padding:22px;margin:18px 0;font-size:1.15rem;font-weight:750}
 .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-.option{border:2px solid #e2e6f4;background:#fff;border-radius:16px;padding:16px;text-align:left;font:inherit;font-weight:750;color:var(--ink);cursor:pointer;transition:.15s;min-height:62px}
+.option{border:2px solid #e2e6f4;background:#fff;border-radius:18px;padding:14px 10px;text-align:center;font:inherit;font-weight:750;color:var(--ink);cursor:pointer;transition:.15s;min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.option .picture{font-size:3.4rem;line-height:1.1;display:block}.option .caption{font-size:1rem;font-weight:850;min-height:1.2em}.option .letter{font-size:.75rem;color:#78839a;font-weight:800;align-self:flex-start}
 .option:hover{border-color:#8b8cf7;transform:translateY(-1px)}.option.selected{border-color:var(--blue);background:#eef0ff}.option.correct{border-color:#21a66c;background:#e1f9ed}.option.wrong{border-color:#e66b83;background:#fff0f3}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{border:0;border-radius:14px;padding:14px 20px;font:inherit;font-weight:850;cursor:pointer}.primary{background:linear-gradient(120deg,#5268f5,#8c55dc);color:#fff;box-shadow:0 8px 20px #6c61d936}.secondary{background:#edf0fb;color:#374365}.btn:disabled{opacity:.45;cursor:not-allowed}
 .feedback{margin-top:15px;padding:14px 16px;border-radius:14px;font-weight:750;display:none}.feedback.show{display:block}.feedback.good{background:#e1f9ed;color:#176b49}.feedback.bad{background:#fff0f3;color:#a3314c}
@@ -53,6 +53,26 @@ const stages=[
 ];
 let stage=0, qi=0, score=0, selected=null, checked=false, answered=0;
 const game=document.getElementById('game');
+// Әр жауапқа сурет-нышан: құралдар суретпен, сандық жауаптар мәнімен көрсетіледі.
+const pictureMap={
+ 'Сызғышпен':'📏','Таразымен':'⚖️','Сағатпен':'⏰','100 см':'📏','10 см':'📐','2 см':'📏',
+ 'Өлшеуіш таспа':'🧵','Шай қасық':'🥄','Сағат':'🕒','Таразы':'⚖️','Сантиметр (см)':'📏','Килограмм (кг)':'🏋️','100 г':'🪶','10 г':'🪶','1000 г':'⚖️',
+ 'Өлшеуіш ыдыспен':'🧪','Сызғышпен':'📏','Литр (л)':'🧴','Метр (м)':'📐','200 мл стақан':'🥛','1 л бөтелке':'🧴','Екеуіне бірдей':'🥛🧴',
+ 'Секундомер':'⏱️','Өлшеуіш таспа':'📏','1 сағат':'🕐','60 минут':'🕒','30 минут':'🕧','100 минут':'🕰️'
+};
+function pictureFor(label){
+ if(pictureMap[label]) return pictureMap[label];
+ if(label.includes('Сантиметр')) return '📏';
+ if(label.includes('Килограмм')) return '⚖️';
+ if(label.includes('Литр')) return '🧴';
+ if(label.includes('Метр')) return '📐';
+ return '🧰';
+}
+function captionFor(label){
+ // Құралды таңдайтын тапсырмаларда жауапты тек суретпен көрсетеміз.
+ const pictureOnly=['Сызғышпен','Таразымен','Сағатпен','Өлшеуіш таспа','Шай қасық','Сағат','Таразы','Өлшеуіш ыдыспен','Секундомер'];
+ return pictureOnly.includes(label) ? '' : label;
+}
 function render(){
  document.getElementById('score').textContent=score;
  document.getElementById('stagecount').textContent=Math.min(stage+1,4)+' / 4 кезең';
@@ -62,7 +82,7 @@ function render(){
  const s=stages[stage],q=s.qs[qi];
  game.innerHTML=`<div class="stagehead"><div class="emoji">${s.emoji}</div><div><div class="eyebrow">КЕЗЕҢ ${stage+1}</div><h2>${s.title}</h2><div class="muted">${s.desc}</div></div></div>
  <div class="muted">Тапсырма ${qi+1} / ${s.qs.length}</div><div class="question">${q.q}</div>
- <div class="options">${q.opts.map((o,i)=>`<button class="option ${selected===i?'selected':''}" data-i="${i}" ${checked?'disabled':''}>${['A','Ә','Б'][i]}. ${o}</button>`).join('')}</div>
+ <div class="options">${q.opts.map((o,i)=>`<button class="option ${selected===i?'selected':''}" data-i="${i}" aria-label="${o}" title="${o}" ${checked?'disabled':''}><span class="letter">${['A','Ә','Б'][i]}</span><span class="picture" aria-hidden="true">${pictureFor(o)}</span><span class="caption">${captionFor(o)}</span></button>`).join('')}</div>
  <div class="feedback ${checked?'show':''} ${checked?(selected===q.a?'good':'bad'):''}" id="feedback">${checked?(selected===q.a?'✨ Дұрыс жауап! Жарайсың! ⭐ ':'Әлі де үйренеміз! ')+q.why:''}</div>
  <div class="actions">${!checked?'<button class="btn primary" id="check" '+(selected===null?'disabled':'')+'>Жауапты тексеру ✓</button>':`<button class="btn primary" id="next">${qi===2?(stage===3?'Нәтижені көру 🏆':'Келесі кезең →'):'Келесі тапсырма →'}</button>`}<button class="btn secondary" id="reset">Қайта бастау ↻</button></div>`;
  game.querySelectorAll('[data-i]').forEach(b=>b.addEventListener('click',()=>{if(!checked){selected=+b.dataset.i;render()}}));
